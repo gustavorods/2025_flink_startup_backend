@@ -1,17 +1,30 @@
 const db = require('../config/firebaseConfig');  // Importa a conexão com o Firestore
+const bcrypt = require('bcrypt');
 
 // Função para criar um novo usuário
-const createUser = async (userData) => {
+const createUserInFirestore = async (email, password) => {
   try {
-    const docRef = await db.collection('users').add(userData);
-    return docRef.id;  // Retorna o ID do documento recém-criado
+    // Verifica se o email já existe
+    const existingUser = await db.collection('users').where('email', '==', email).get();
+    if (!existingUser.empty) {
+      throw new Error('Usuário já existe');
+    }
+
+    // Criptografa a senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Salva o usuário no Firestore
+    const newUserRef = await db.collection('users').add({ email, password: hashedPassword });
+
+    return newUserRef.id;
   } catch (error) {
-    throw new Error('Erro ao criar usuário: ' + error.message);
+    console.error('Erro ao criar usuário no Firestore Model:', error);
+    throw new Error('Erro ao criar usuário no Firestore Model');
   }
 };
 
 // Função para obter todos os usuários
-const getUsers = async () => {
+const getUsersFromFirebase = async () => {
   try {
     const snapshot = await db.collection('users').get();
     const users = snapshot.docs.map(doc => doc.data());
@@ -21,4 +34,5 @@ const getUsers = async () => {
   }
 };
 
-module.exports = { createUser, getUsers };
+
+module.exports = { createUserInFirestore, getUsersFromFirebase };

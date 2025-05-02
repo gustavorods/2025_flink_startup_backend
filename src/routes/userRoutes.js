@@ -18,12 +18,12 @@ const userController = require('../controllers/userController');
  *               - email
  *               - senha
  *             properties:
- *               senha:
- *                 type: string
- *                 example: 123 (deve enviar o hash)
  *               email:
  *                 type: string
  *                 example: joao@email.com
+ *               password:
+ *                 type: string
+ *                 example: 123456
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
@@ -43,5 +43,55 @@ router.post('/criar-novo-user', userController.createUser);
  *         description: Lista de usuários obtida com sucesso
  */
 router.get('/listar-users', userController.getUsers);
+
+// Rota para fazer login do usuário
+/**
+ * @swagger
+ * paths:
+ *   /api/login:
+ *     post:
+ *       summary: Realiza o login do usuário
+ *       tags:
+ *         - Autenticação
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   example: usuario@email.com
+ *                 password:
+ *                   type: string
+ *                   format: password
+ *                   example: senha123
+ *               required:
+ *                 - email
+ *                 - password
+ *       responses:
+ *         '200':
+ *           description: Login bem-sucedido
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   token:
+ *                     type: string
+ *                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *         '400':
+ *           description: Credenciais inválidas ou erro ao autenticar
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: string
+ *                 example: Credenciais inválidas
+ *         '500':
+ *           description: Erro interno no servidor
+ */
+router.post('/login', userController.loginUser);
 
 module.exports = router;
