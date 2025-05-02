@@ -12,7 +12,16 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.3.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustavorods/2025_flink_startup_backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gustavorods/2025_flink_startup_backend/issues"
+  },
+  "homepage": "https://github.com/gustavorods/2025_flink_startup_backend#readme"
 }
