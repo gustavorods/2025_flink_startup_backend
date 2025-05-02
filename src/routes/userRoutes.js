@@ -5,7 +5,7 @@ const userController = require('../controllers/userController');
 // Rota para criar um novo usuário
 /**
  * @swagger
- * /criar-novo-user:
+ * /api/criar-novo-user:
  *   post:
  *     summary: Cria um novo usuário
  *     requestBody:
@@ -35,7 +35,7 @@ router.post('/criar-novo-user', userController.createUser);
 // Rota para listar todos os usuários
 /**
  * @swagger
- * /listar-users:
+ * /api/listar-users:
  *   get:
  *     summary: Retorna a lista de usuários
  *     responses:
