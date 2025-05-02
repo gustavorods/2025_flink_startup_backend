@@ -5,30 +5,38 @@ const userController = require('../controllers/userController');
 // Rota para criar um novo usuário
 /**
  * @swagger
- * /api/criar-novo-user:
+ * /api/createUser:
  *   post:
- *     summary: Cria um novo usuário
+ *     summary: Cria um novo usuário e retorna um token JWT.
+ *     description: Recebe o e-mail e senha do usuário, cria o usuário no banco de dados e retorna um token JWT.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - senha
  *             properties:
  *               email:
  *                 type: string
- *                 example: joao@email.com
+ *                 example: 'usuario@exemplo.com'
  *               password:
  *                 type: string
- *                 example: 123456
+ *                 example: 'senhaForte123'
  *     responses:
  *       201:
- *         description: Usuário criado com sucesso
+ *         description: Usuário criado com sucesso e token JWT gerado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywiZXhwIjoxNjI2ODQwNDAwfQ.Xw6A3_P9CqfQdb1VAlUHVZNN6q_hIs2Fzkhj2T_1M8M'
  *       400:
- *         description: Erro de validação nos dados enviados
+ *         description: Email ou senha não informados.
+ *       500:
+ *         description: Erro interno ao criar o usuário ou gerar o token JWT.
  */
 router.post('/criar-novo-user', userController.createUser);
 
