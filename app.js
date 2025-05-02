@@ -37,7 +37,7 @@ const swaggerOptions = {
         description: 'Documentação sobre as rotas',
       },
     },
-    apis: ['./routes/*.js'], // Caminho para seus arquivos de rota
+    apis: ['./src/routes/*.js'], // Caminho para seus arquivos de rota
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
