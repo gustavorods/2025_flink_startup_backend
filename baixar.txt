@@ -1,4 +1,8 @@
 npm init -y
 npm install express cors
+npm install cors
 npm install firebase-admin
 npm install swagger-ui-express swagger-jsdoc
+npm install bcrypt 
+npm install jsonwebtoken 
+npm install dotenv
