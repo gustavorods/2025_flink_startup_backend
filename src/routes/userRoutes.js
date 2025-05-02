@@ -100,6 +100,6 @@ router.get('/listar-users', userController.getUsers);
  *         '500':
  *           description: Erro interno no servidor
  */
-router.post('/login', userController.loginUser);
+// router.post('/login', userController.loginUser);
 
 module.exports = router;
