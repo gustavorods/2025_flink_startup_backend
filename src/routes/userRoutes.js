@@ -92,21 +92,20 @@ router.post('/criar-novo-user', userController.createUser);
  *           application/json:
  *             schema:
  *               type: object
+ *               required:
+ *                 - email
+ *                 - password
  *               properties:
  *                 email:
  *                   type: string
  *                   format: email
- *                   example: usuario@email.com
+ *                   example: usuario@exemplo.com
  *                 password:
  *                   type: string
- *                   format: password
  *                   example: senha123
- *               required:
- *                 - email
- *                 - password
  *       responses:
  *         '200':
- *           description: Login bem-sucedido
+ *           description: Login realizado com sucesso
  *           content:
  *             application/json:
  *               schema:
@@ -114,17 +113,44 @@ router.post('/criar-novo-user', userController.createUser);
  *                 properties:
  *                   token:
  *                     type: string
+ *                     description: Token JWT para autenticação
  *                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *         '400':
- *           description: Credenciais inválidas ou erro ao autenticar
+ *           description: Requisição inválida (faltando email ou senha)
  *           content:
  *             application/json:
  *               schema:
- *                 type: string
- *                 example: Credenciais inválidas
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     example: Email e senha são obrigatórios.
+ *         '401':
+ *           description: Falha de autenticação (usuário não encontrado ou senha incorreta)
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     example: Usuário não encontrado.
  *         '500':
- *           description: Erro interno no servidor
+ *           description: Erro interno do servidor
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     example: Erro interno ao realizar login.
  */
-// router.post('/login', userController.loginUser);
+
+/**
+ * Rota para o login do usuário
+ */
+router.post('/login', userController.loginUser);
+
 
 module.exports = router;

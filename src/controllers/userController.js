@@ -1,4 +1,4 @@
-const { createUserInFirestore, getUsersFromFirebase } = require('../models/userModel');
+const { createUserInFirestore, getUsersFromFirebase, findUserByEmail } = require('../models/userModel');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -50,29 +50,36 @@ const createUser = async (req, res) => {
   }
 };
 
-// const loginUser = async (req, res) => {
-//   const { email, password } = req.body;
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
 
-//   // Verifica se o email e senha são válidos
-//   try {
-//     // Verifique a senha e o e-mail no Firebase Auth ou em sua base de dados
-//     const userRecord = await admin.auth().getUserByEmail(email);
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+  }
 
-//     // Suponha que você tenha armazenado a senha de forma criptografada
-//     const passwordMatch = await bcrypt.compare(password, userRecord.password);
-//     if (!passwordMatch) return res.status(400).send('Credenciais inválidas');
+  try {
+    const user = await findUserByEmail(email);
 
-//     // Gerando o token JWT
-//     const token = jwt.sign({ userId: userRecord.uid }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não encontrado.' });
+    }
 
-//     res.status(200).send({ token });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(400).send('Erro ao autenticar');
-//   }
-//   console.log('Email:', email);
-//   console.log('Password:', password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Senha incorreta.' });
+    }
 
-// }
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'JWT_SECRET não configurado.' });
+    }
 
-module.exports = { createUser, /*getUsers*/ };
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({ token });
+  } catch (err) {
+    console.error('Erro ao realizar login:', err);
+    res.status(500).json({ error: 'Erro interno ao realizar login.' });
+  }
+};
+
+module.exports = { createUser, loginUser };

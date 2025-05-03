@@ -43,5 +43,16 @@ const getUsersFromFirebase = async () => {
   }
 };
 
+const findUserByEmail = async (email) => {
+  const userQuery = await db.collection('users').where('email', '==', email).limit(1).get();
+  if (userQuery.empty) return null;
 
-module.exports = { createUserInFirestore, getUsersFromFirebase };
+  const userDoc = userQuery.docs[0];
+  return {
+    id: userDoc.id,
+    ...userDoc.data()
+  };
+};
+
+
+module.exports = { createUserInFirestore, getUsersFromFirebase, findUserByEmail };
