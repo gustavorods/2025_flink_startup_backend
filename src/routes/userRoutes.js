@@ -75,7 +75,7 @@ router.post('/criar-novo-user', userController.createUser);
  *       200:
  *         description: Lista de usuários obtida com sucesso
  */
-// router.get('/listar-users', userController.getUsers);
+router.get('/listar-users', userController.getAllUsers);
 
 // Rota para fazer login do usuário
 /**

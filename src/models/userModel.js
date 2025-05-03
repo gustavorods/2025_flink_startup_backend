@@ -32,16 +32,28 @@ const createUserInFirestore = async (nome, sobrenome, email, password, esportes,
   }
 };
 
-// Função para obter todos os usuários
-const getUsersFromFirebase = async () => {
+// Função para listar todos os usuários
+const listUsersFromFirestore = async () => {
   try {
     const snapshot = await db.collection('users').get();
-    const users = snapshot.docs.map(doc => doc.data());
+
+    if (snapshot.empty) {
+      return []; // Nenhum usuário encontrado
+    }
+
+    const users = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      password: undefined // remove a senha por segurança
+    }));
+
     return users;
   } catch (error) {
-    throw new Error('Erro ao obter usuários: ' + error.message);
+    console.error('Erro ao listar usuários do Firestore:', error.message);
+    throw new Error('Erro ao listar usuários do Firestore');
   }
 };
+
 
 const findUserByEmail = async (email) => {
   const userQuery = await db.collection('users').where('email', '==', email).limit(1).get();
@@ -55,4 +67,4 @@ const findUserByEmail = async (email) => {
 };
 
 
-module.exports = { createUserInFirestore, getUsersFromFirebase, findUserByEmail };
+module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail };

@@ -1,4 +1,4 @@
-const { createUserInFirestore, getUsersFromFirebase, findUserByEmail } = require('../models/userModel');
+const { createUserInFirestore, listUsersFromFirestore, findUserByEmail } = require('../models/userModel');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -82,4 +82,15 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser };
+// Função para listar todos os usuários
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await listUsersFromFirestore();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar usuários' });
+  }
+};
+
+
+module.exports = { createUser, getAllUsers,loginUser };
