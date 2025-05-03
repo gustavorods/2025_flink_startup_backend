@@ -2,27 +2,33 @@ const { createUserInFirestore, getUsersFromFirebase } = require('../models/userM
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { userSchema } = require('../schemas/userSchema'); // importa o schema
+
 
 // Função para criar um novo usuário
 const createUser = async (req, res) => {
-  const { email, password } = req.body;
+  // Validação dos dados com Zod
+  const parsed = userSchema.safeParse(req.body);
 
-  // Verifica se o email e a senha foram passados
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+  if (!parsed.success) {
+    return res.status(400).json({ errors: parsed.error.errors });
   }
 
+  // Dados validados com sucesso
+  const { nome, sobrenome, email, password, esportes, redes_sociais, username } = parsed.data;
+
   try {
-    // Chama a função para criar o usuário
+    // Cria usuário no Firestore
     let userId;
     try {
-      userId = await createUserInFirestore(email, password);
+      userId = await createUserInFirestore(nome, sobrenome, email, password, esportes, redes_sociais, username);
     } catch (err) {
       console.error('Erro ao criar usuário no Firestore Controller:', err);
       return res.status(500).send('Erro ao criar usuário no Firestore Controller');
     }
 
     // Verifica se a chave JWT_SECRET está configurada
+
     if (!process.env.JWT_SECRET) {
       return res.status(500).send('JWT_SECRET não configurado');
     }
@@ -38,21 +44,9 @@ const createUser = async (req, res) => {
 
     // Retorna o token gerado
     res.status(201).send({ token });
-
   } catch (err) {
     console.error('Erro inesperado:', err);
     res.status(500).send('Erro ao criar usuário');
-  }
-};
-
-
-// Função para listar todos os usuários
-const getUsers = async (req, res) => {
-  try {
-    const users = await userModel.getUsersFromFirebase();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
 };
 
@@ -81,4 +75,4 @@ const getUsers = async (req, res) => {
 
 // }
 
-module.exports = { createUser, getUsers };
+module.exports = { createUser, /*getUsers*/ };

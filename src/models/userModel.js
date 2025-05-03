@@ -2,7 +2,7 @@ const db = require('../config/firebaseConfig');  // Importa a conexão com o Fir
 const bcrypt = require('bcrypt');
 
 // Função para criar um novo usuário
-const createUserInFirestore = async (email, password) => {
+const createUserInFirestore = async (nome, sobrenome, email, password, esportes, redes_sociais, username) => {
   try {
     // Verifica se o email já existe
     const existingUser = await db.collection('users').where('email', '==', email).get();
@@ -13,12 +13,21 @@ const createUserInFirestore = async (email, password) => {
     // Criptografa a senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Salva o usuário no Firestore
-    const newUserRef = await db.collection('users').add({ email, password: hashedPassword });
+    // Salva o usuário no Firestore com todos os dados
+    const newUserRef = await db.collection('users').add({
+      nome,
+      sobrenome,
+      email,
+      password: hashedPassword,
+      esportes,
+      redes_sociais,
+      username,
+      created_at: new Date()
+    });
 
     return newUserRef.id;
   } catch (error) {
-    console.error('Erro ao criar usuário no Firestore Model:', error);
+    console.error('Erro ao criar usuário no Firestore Model:', error.message);
     throw new Error('Erro ao criar usuário no Firestore Model');
   }
 };

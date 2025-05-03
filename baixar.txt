@@ -6,3 +6,4 @@ npm install swagger-ui-express swagger-jsdoc
 npm install bcrypt 
 npm install jsonwebtoken 
 npm install dotenv
+npm install express zod
