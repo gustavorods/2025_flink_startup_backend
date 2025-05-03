@@ -10,8 +10,12 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 
-// Configuração do CORS 
-app.use(cors());
+// Configuração do CORS
+app.use(cors({
+  origin: 'http://localhost:5173', // URL do seu frontend React
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware para aceitar dadaos JSON
 app.use(express.json());
