@@ -20,11 +20,12 @@ app.use(cors({
 // Middleware para aceitar dadaos JSON
 app.use(express.json());
 
-// Importação das rotas
-const userRoutes = require('./src/routes/userRoutes');
+// Importação unificada das rotas
+const { userRoutes, authRoutes } = require('./src/routes');
 
 // Definindo a rota base da API
 app.use('/api', userRoutes);
+app.use('/auth', authRoutes);
 
 // Rodar servidos
 app.listen(port, () => {
