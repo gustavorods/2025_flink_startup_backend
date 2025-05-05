@@ -21,11 +21,12 @@ app.use(cors({
 app.use(express.json());
 
 // Importação unificada das rotas
-const { userRoutes, authRoutes } = require('./src/routes');
+const { userRoutes, authRoutes, timeLineRoutes } = require('./src/routes');
 
 // Definindo a rota base da API
 app.use('/api', userRoutes);
 app.use('/auth', authRoutes);
+app.use('/timeline', timeLineRoutes);
 
 // Rodar servidos
 app.listen(port, () => {
