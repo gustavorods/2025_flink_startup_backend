@@ -1,4 +1,4 @@
-const { createUserInFirestore, listUsersFromFirestore, findUserByEmail } = require('../models/userModel');
+const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
 const { seguirUsuarioDB, usuarioExiste } = require("../models/userModel");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
@@ -122,5 +122,27 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+/**
+ * Controller para retornar a imagem do perfil do usuário
+ */
+async function buscarImagemUsuario(req, res) {
+  const { userId } = req.params;
 
-module.exports = { createUser, getAllUsers,loginUser, seguirUsuario };
+  if (!userId) {
+    return res.status(400).json({ error: "Parâmetro userId é obrigatório." });
+  }
+
+  try {
+    const imagemUrl = await buscarImagemUsuarioDB(userId);
+
+    if (!imagemUrl) {
+      return res.status(404).json({ error: "Imagem não encontrada para este usuário." });
+    }
+
+    return res.status(200).json({ imagemUrl });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario };

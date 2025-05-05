@@ -96,5 +96,25 @@ const findUserByEmail = async (email) => {
   };
 };
 
+/**
+ * Busca o link da imagem de perfil do usuário no Firestore
+ * @param {string} userId - ID do usuário
+ * @returns {Promise<string|null>} - URL da imagem ou null se não existir
+ */
+async function buscarImagemUsuarioDB(userId) {
+  try {
+    const docRef = db.collection("users").doc(userId);
+    const doc = await docRef.get();
 
-module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB };
+    if (!doc.exists) {
+      return null; // Usuário não encontrado
+    }
+
+    const dados = doc.data();
+    return dados.fotoPerfil || null; // Retorna null se o campo não existir
+  } catch (error) {
+    throw new Error(`Erro ao buscar imagem do usuário: ${error.message}`);
+  }
+}
+
+module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB, buscarImagemUsuarioDB };

@@ -230,4 +230,36 @@ router.post('/login', userController.loginUser);
  */
 router.post("/seguir", userController.seguirUsuario);
 
+/**
+ * @swagger
+ * /api/users/{userId}/foto:
+ *   get:
+ *     summary: Retorna o link da imagem de perfil do usuário
+ *     tags: [Usuários]
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: URL da imagem retornada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 imagemUrl:
+ *                   type: string
+ *       400:
+ *         description: Parâmetro ausente
+ *       404:
+ *         description: Imagem não encontrada
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get("/users/:userId/foto", userController.buscarImagemUsuario);
+
 module.exports = router;
