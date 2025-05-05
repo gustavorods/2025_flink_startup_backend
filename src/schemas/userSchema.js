@@ -10,9 +10,18 @@ const userSchema = z.object({
   esportes: z.array(z.string()).nonempty("Informe ao menos um esporte"),
 
   redes_sociais: z.object({
-    tiktok: z.string().startsWith("@", "Deve começar com @"),
-    instagram: z.string().startsWith("@", "Deve começar com @"),
-    x: z.string().startsWith("@", "Deve começar com @"),
+    tiktok: z.string().optional().refine(
+      (value) => !value || value.startsWith("@"),
+      "Deve começar com @"
+    ),
+    instagram: z.string().optional().refine(
+      (value) => !value || value.startsWith("@"),
+      "Deve começar com @"
+    ),
+    x: z.string().optional().refine(
+      (value) => !value || value.startsWith("@"),
+      "Deve começar com @"
+    ),
   }),
 });
 
