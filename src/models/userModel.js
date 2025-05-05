@@ -1,5 +1,34 @@
 const db = require('../config/firebaseConfig');  // Importa a conexão com o Firestore
+const { Timestamp } = require('firebase-admin').firestore;
 const bcrypt = require('bcrypt');
+
+// Função para seguir um usuário
+async function seguirUsuarioDB(quemSegue, quemVaiSerSeguido) {
+  const timestamp = Timestamp.now();
+
+  const seguindoRef = db
+    .collection("users")
+    .doc(quemSegue)
+    .collection("seguindo")
+    .doc(quemVaiSerSeguido);
+
+  const seguidoresRef = db
+    .collection("users")
+    .doc(quemVaiSerSeguido)
+    .collection("seguidores")
+    .doc(quemSegue);
+
+  await Promise.all([
+    seguindoRef.set({ seguido_em: timestamp }),
+    seguidoresRef.set({ seguido_em: timestamp }),
+  ]);
+}
+
+// Função para verificar se o usuário existe
+async function usuarioExiste(uid) {
+  const userDoc = await db.collection("users").doc(uid).get();
+  return userDoc.exists;
+}
 
 // Função para criar um novo usuário
 const createUserInFirestore = async (nome, sobrenome, email, password, esportes, redes_sociais, username) => {
@@ -60,6 +89,7 @@ const findUserByEmail = async (email) => {
   if (userQuery.empty) return null;
 
   const userDoc = userQuery.docs[0];
+  
   return {
     id: userDoc.id,
     ...userDoc.data()
@@ -67,4 +97,4 @@ const findUserByEmail = async (email) => {
 };
 
 
-module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail };
+module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB };

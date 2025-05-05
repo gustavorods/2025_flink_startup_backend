@@ -1,9 +1,39 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail } = require('../models/userModel');
+const { seguirUsuarioDB, usuarioExiste } = require("../models/userModel");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { userSchema } = require('../schemas/userSchema'); // importa o schema
 
+// Função para seguir outro usuário verificando a existência dos usuários
+async function seguirUsuario(req, res) {
+  const { quemSegue, quemVaiSerSeguido } = req.body;
+
+  if (!quemSegue || !quemVaiSerSeguido) {
+    return res.status(400).json({ error: "Parâmetros obrigatórios ausentes." });
+  }
+
+  try {
+    // Verificações
+    const existeQuemSegue = await usuarioExiste(quemSegue);
+    if (!existeQuemSegue) {
+      return res.status(404).json({ error: "O usuário que está tentando seguir não existe." });
+    }
+
+    const existeQuemVaiSerSeguido = await usuarioExiste(quemVaiSerSeguido);
+    if (!existeQuemVaiSerSeguido) {
+      return res.status(404).json({ error: "O usuário que está sendo seguido não existe." });
+    }
+
+    console.log(`Tentando seguir: ${quemSegue} -> ${quemVaiSerSeguido}`);
+    await seguirUsuarioDB(quemSegue, quemVaiSerSeguido);
+    console.log("Usuário seguido com sucesso.");
+    res.status(200).json({ message: "Seguindo com sucesso." });
+  } catch (error) {
+    console.error("Erro ao seguir usuário:", error.message);
+    res.status(500).json({ error: "Erro interno ao tentar seguir usuário." });
+  }
+}
 
 // Função para criar um novo usuário
 const createUser = async (req, res) => {
@@ -93,4 +123,4 @@ const getAllUsers = async (req, res) => {
 };
 
 
-module.exports = { createUser, getAllUsers,loginUser };
+module.exports = { createUser, getAllUsers,loginUser, seguirUsuario };

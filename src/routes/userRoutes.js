@@ -148,9 +148,141 @@ router.get('/listar-users', userController.getAllUsers);
  */
 
 /**
- * Rota para o login do usuário
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Login de usuário
+ *     description: Realiza o login de um usuário utilizando email e senha.
+ *     operationId: loginUser
+ *     tags:
+ *       - Autenticação
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *                 description: O e-mail do usuário.
+ *               password:
+ *                 type: string
+ *                 example: mySecretPassword
+ *                 description: A senha do usuário.
+ *     responses:
+ *       200:
+ *         description: Login bem-sucedido, retorna o token JWT.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: O token JWT gerado para o usuário.
+ *       400:
+ *         description: Parâmetros obrigatórios ausentes (email ou senha).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Email e senha são obrigatórios."
+ *       401:
+ *         description: E-mail não encontrado ou senha incorreta.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object 
+ *               properties:
+ *                 error:
+ *                   type: string 
+ *                   example: "Usuário não encontrado."
+ *       500:
+ *         description: Erro interno ao realizar login (problema com JWT_SECRET ou banco de dados).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno ao realizar login."
  */
 router.post('/login', userController.loginUser);
 
+/**
+ * @swagger
+ * /api/seguir:
+ *   post:
+ *     summary: "Seguir um usuário"
+ *     description: "Permite que um usuário siga outro. Verifica se ambos os usuários existem antes de realizar a ação."
+ *     tags:
+ *       - Usuarios
+ *     requestBody:
+ *       description: "Dados necessários para seguir um usuário."
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quemSegue:
+ *                 type: string
+ *                 description: "ID do usuário que está tentando seguir."
+ *               quemVaiSerSeguido:
+ *                 type: string
+ *                 description: "ID do usuário que será seguido."
+ *             required:
+ *               - quemSegue
+ *               - quemVaiSerSeguido
+ *     responses:
+ *       200:
+ *         description: "Usuário seguido com sucesso."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Seguindo com sucesso."
+ *       400:
+ *         description: "Parâmetros obrigatórios ausentes."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Parâmetros obrigatórios ausentes."
+ *       404:
+ *         description: "Um ou ambos os usuários não existem."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Um ou ambos os usuários não existem."
+ *       500:
+ *         description: "Erro interno ao tentar seguir usuário."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro interno ao tentar seguir usuário."
+ * 
+ */
+router.post("/seguir", userController.seguirUsuario);
 
 module.exports = router;
