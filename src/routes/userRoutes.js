@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { userController } = require('../controllers');
+const authenticateToken = require('../middlewares/authenticateToken');
 
 /**
  * @swagger
@@ -67,15 +68,22 @@ router.post('/criar-novo-user', userController.createUser);
 
 // Rota para listar todos os usuários
 /**
+/**
  * @swagger
  * /api/listar-users:
  *   get:
  *     summary: Retorna a lista de usuários
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuários obtida com sucesso
+ *       401:
+ *         description: Token não fornecido ou inválido
+ *       500:
+ *         description: Erro interno
  */
-router.get('/listar-users', userController.getAllUsers);
+router.get('/listar-users', authenticateToken, userController.getAllUsers);
 
 // Rota para fazer login do usuário
 /**
@@ -148,70 +156,7 @@ router.get('/listar-users', userController.getAllUsers);
  */
 
 /**
- * @swagger
- * /api/login:
- *   post:
- *     summary: Login de usuário
- *     description: Realiza o login de um usuário utilizando email e senha.
- *     operationId: loginUser
- *     tags:
- *       - Autenticação
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: user@example.com
- *                 description: O e-mail do usuário.
- *               password:
- *                 type: string
- *                 example: mySecretPassword
- *                 description: A senha do usuário.
- *     responses:
- *       200:
- *         description: Login bem-sucedido, retorna o token JWT.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: O token JWT gerado para o usuário.
- *       400:
- *         description: Parâmetros obrigatórios ausentes (email ou senha).
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Email e senha são obrigatórios."
- *       401:
- *         description: E-mail não encontrado ou senha incorreta.
- *         content:
- *           application/json:
- *             schema:
- *               type: object 
- *               properties:
- *                 error:
- *                   type: string 
- *                   example: "Usuário não encontrado."
- *       500:
- *         description: Erro interno ao realizar login (problema com JWT_SECRET ou banco de dados).
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Erro interno ao realizar login."
+ * Rota para o login do usuário
  */
 router.post('/login', userController.loginUser);
 

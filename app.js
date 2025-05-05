@@ -29,7 +29,7 @@ app.use('/auth', authRoutes);
 
 // Rodar servidos
 app.listen(port, () => {
-    console.log(`API rodando em https://localhost:${port}`);
+    console.log(`API rodando em http://localhost:${port}`);
 });
 
 // Configuração básica do Swagger
