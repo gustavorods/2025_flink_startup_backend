@@ -1,20 +1,24 @@
-const { buscarImagemDoPost } = require("../models/timeLineModel");
+const { obterDadosPost } = require("../models/timeLineModel");
 
-async function obterImagemDoPost(req, res) {
+/**
+ * Controlador para obter os dados de uma postagem, incluindo imagem, descrição e tags.
+ * @param {Object} req - A requisição do cliente.
+ * @param {Object} res - A resposta a ser enviada ao cliente.
+ */
+async function obterDadosDaPostagem(req, res) {
   const { postId } = req.params;
 
   if (!postId) {
-    return res.status(400).json({ error: "postId é obrigatório." });
+    return res.status(400).json({ error: "O ID da postagem é obrigatório." });
   }
 
   try {
-    const imagem = await buscarImagemDoPost(postId);
-    return res.status(200).json({ imagem });
+    const postData = await obterDadosPost(postId);
+    res.status(200).json(postData); // Retorna os dados da postagem
   } catch (error) {
-    return res.status(404).json({ error: error.message });
+    console.error("Erro ao obter dados da postagem:", error.message);
+    res.status(404).json({ error: error.message });
   }
 }
 
-module.exports = {
-  obterImagemDoPost,
-};
+module.exports = { obterDadosDaPostagem };

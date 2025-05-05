@@ -1,6 +1,11 @@
 const db = require("../config/firebaseConfig");
 
-async function buscarImagemDoPost(postId) {
+/**
+ * Função para buscar os dados de uma postagem (imagem, descrição e tags).
+ * @param {string} postId - O ID da postagem.
+ * @returns {Object} - Dados da postagem (imagem, descrição, tags).
+ */
+async function obterDadosPost(postId) {
   const postRef = db.collection("posts").doc(postId);
   const doc = await postRef.get();
 
@@ -9,14 +14,13 @@ async function buscarImagemDoPost(postId) {
   }
 
   const postData = doc.data();
-
-  if (!postData.image) {
-    throw new Error("Imagem não disponível para este post.");
-  }
-
-  return postData.image;
+  return {
+    imagem: postData.image,
+    descricao: postData.description,
+    tags: postData.sports || [],
+    fotoPerfil: postData.fotoPerfil,
+    nome: postData.nome,
+  };
 }
 
-module.exports = {
-  buscarImagemDoPost,
-};
+module.exports = { obterDadosPost };
