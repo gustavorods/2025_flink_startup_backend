@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { userController } = require('../controllers');
+const authenticateToken = require('../middlewares/authenticateToken');
 
 /**
  * @swagger
@@ -67,15 +68,22 @@ router.post('/criar-novo-user', userController.createUser);
 
 // Rota para listar todos os usuários
 /**
+/**
  * @swagger
  * /api/listar-users:
  *   get:
  *     summary: Retorna a lista de usuários
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuários obtida com sucesso
+ *       401:
+ *         description: Token não fornecido ou inválido
+ *       500:
+ *         description: Erro interno
  */
-router.get('/listar-users', userController.getAllUsers);
+router.get('/listar-users', authenticateToken, userController.getAllUsers);
 
 // Rota para fazer login do usuário
 /**
@@ -145,10 +153,6 @@ router.get('/listar-users', userController.getAllUsers);
  *                   error:
  *                     type: string
  *                     example: Erro interno ao realizar login.
- */
-
-/**
- * Rota para o login do usuário
  */
 router.post('/login', userController.loginUser);
 
