@@ -5,7 +5,7 @@ const { listUsersFromFirestore } = require("../models/userModel");
  * Compara os esportes do usuário principal com os demais usuários
  * @param {string} userId - ID do usuário principal
  * @param {Array} esportesUserPrincipal - Array com os esportes do usuário principal
- * @returns {Array} Lista de IDs dos usuários com esportes em comum
+ * @returns {Array} Lista de objetos dos usuários com esportes em comum
  */
 async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
     // Busca todos os usuários cadastrados
@@ -28,9 +28,9 @@ async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
             esportesUserPrincipal.includes(esporte)
         );
 
-        // Se houver, adiciona o ID do usuário na lista
+        // Se houver, adiciona o usuário completo na lista
         if (temEsporteEmComum) {
-            usuariosSemelhantes.push(users[i].id);
+            usuariosSemelhantes.push(users[i]);
         }
     }
 
