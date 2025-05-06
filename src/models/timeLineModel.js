@@ -23,4 +23,37 @@ async function obterDadosPost(postId) {
   };
 }
 
-module.exports = { obterDadosPost };
+async function getPostsByUserIds(userIds, limit = 10) {
+  // console.log("userIds", userIds);
+
+  const allResults = [];
+
+  const batches = [];
+  for (let i = 0; i < userIds.length; i += 10) {
+    batches.push(userIds.slice(i, i + 10));
+    // console.log("batches", batches);
+  }
+
+  for (const group of batches) {
+    const querySnapshot = await db
+      .collection("posts")
+      .where("userId", "in", group)
+      .orderBy("created_at", "desc")
+      .limit(limit)
+      .get();
+    console.log(`Query snapshot for userIds ${group}:`, querySnapshot.docs.length);
+
+
+    querySnapshot.forEach(doc => {
+      allResults.push({ id: doc.id, ...doc.data() });
+    });
+  }
+
+  // Ordenar todos os posts por data (decrescente)
+  return allResults
+    .sort((a, b) => b.created_at.toMillis() - a.created_at.toMillis())
+    .slice(0, limit);
+}
+
+
+module.exports = { obterDadosPost, getPostsByUserIds };

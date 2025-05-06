@@ -48,4 +48,55 @@ const { timeLineController } = require("../controllers/");
  */
 router.get("/post/:postId", timeLineController.obterDadosDaPostagem);
 
+/**
+ * @swagger
+ * /timeline/feed/{userId}:
+ *   get:
+ *     summary: Retorna o feed com postagens dos usuários seguidos
+ *     tags: [Feed]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID do usuário logado (que está buscando o feed)
+ *     responses:
+ *       200:
+ *         description: Lista de postagens recentes dos usuários seguidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     description: ID do post
+ *                   description:
+ *                     type: string
+ *                     description: Texto do post
+ *                   image:
+ *                     type: string
+ *                     description: URL da imagem ou vídeo
+ *                   sports:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: Esportes relacionados ao post
+ *                   userId:
+ *                     type: string
+ *                     description: ID do autor do post
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Data e hora de criação do post
+ *       400:
+ *         description: userId não informado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get("/feed/:userId", timeLineController.getFeed);
+
 module.exports = router;

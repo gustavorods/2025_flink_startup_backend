@@ -1,4 +1,6 @@
 const { obterDadosPost } = require("../models/timeLineModel");
+const feedService = require("../services/feedService");
+
 
 /**
  * Controlador para obter os dados de uma postagem, incluindo imagem, descrição e tags.
@@ -21,4 +23,19 @@ async function obterDadosDaPostagem(req, res) {
   }
 }
 
-module.exports = { obterDadosDaPostagem };
+async function getFeed(req, res) {
+  const { userId } = req.params;
+  // return res.status(400).json({ userId });
+
+  if (!userId) return res.status(400).json({ error: "userId é obrigatório" });
+
+  try {
+    const feed = await feedService.gerarFeed(userId);
+    res.status(200).json(feed);
+  } catch (error) {
+    console.error("Erro ao gerar feed:", error);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+module.exports = { obterDadosDaPostagem, getFeed };

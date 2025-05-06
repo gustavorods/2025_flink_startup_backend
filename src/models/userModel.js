@@ -89,7 +89,7 @@ const findUserByEmail = async (email) => {
   if (userQuery.empty) return null;
 
   const userDoc = userQuery.docs[0];
-  
+
   return {
     id: userDoc.id,
     ...userDoc.data()
@@ -119,21 +119,35 @@ async function buscarImagemUsuarioDB(userId) {
 
 // Função para buscar o username dela com base no id 
 async function buscarUsernameComId(userId) {
-    try {
-        const docRef = db.collection("users").doc(userId);
-        const doc = await docRef.get();
+  try {
+    const docRef = db.collection("users").doc(userId);
+    const doc = await docRef.get();
 
-        // Verificando se o documento existe
-        if (!doc.exists) {
-          return null; // Usuário não encontrado
-        } 
+    // Verificando se o documento existe
+    if (!doc.exists) {
+      return null; // Usuário não encontrado
+    }
 
-        const dados = doc.data();
-        return dados.username || null; // retorna null se o campo não existir 
-    }
-    catch (error) {
-      throw new Error(`Erro ao buscar username com Id ${userId}: ${error.message}`)
-    }
+    const dados = doc.data();
+    return dados.username || null; // retorna null se o campo não existir 
+  }
+  catch (error) {
+    throw new Error(`Erro ao buscar username com Id ${userId}: ${error.message}`)
+  }
 }
 
-module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB, buscarImagemUsuarioDB, buscarUsernameComId };
+async function getSeguidos(userId) {
+  const snapshot = await db.collection(`users/${userId}/seguindo`).get();
+  return snapshot.docs.map(doc => doc.id);
+}
+
+module.exports = {
+  createUserInFirestore,
+  listUsersFromFirestore,
+  findUserByEmail,
+  usuarioExiste,
+  seguirUsuarioDB,
+  buscarImagemUsuarioDB,
+  buscarUsernameComId,
+  getSeguidos
+};
