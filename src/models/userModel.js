@@ -117,4 +117,23 @@ async function buscarImagemUsuarioDB(userId) {
   }
 }
 
-module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB, buscarImagemUsuarioDB };
+// Função para buscar o username dela com base no id 
+async function buscarUsernameComId(userId) {
+    try {
+        const docRef = db.collection("users").doc(userId);
+        const doc = await docRef.get();
+
+        // Verificando se o documento existe
+        if (!doc.exists) {
+          return null; // Usuário não encontrado
+        } 
+
+        const dados = doc.data();
+        return dados.username || null; // retorna null se o campo não existir 
+    }
+    catch (error) {
+      throw new Error(`Erro ao buscar username com Id ${userId}: ${error.message}`)
+    }
+}
+
+module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB, buscarImagemUsuarioDB, buscarUsernameComId };
