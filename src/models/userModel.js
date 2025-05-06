@@ -128,26 +128,30 @@ async function buscarUsernameComId(userId) {
       return null; // Usuário não encontrado
     }
 
+        const dados = doc.data();
+        return dados.username || null; // retorna null se o campo não existir 
+    }
+    catch (error) {
+      throw new Error(`Erro ao buscar username com Id ${userId}: ${error.message}`);
+    }
+}
+
+// Função que pega os esportes do usuário 
+async function pegarEsportesUser(userId) {
+  try {
+    const docRef = db.collection("users").doc(userId);
+    const doc = await docRef.get();
+
+    // Verificando se o documento existe
+    if (!doc.exists) {
+      return null; // Usuário não encontrado
+    } 
+
     const dados = doc.data();
-    return dados.username || null; // retorna null se o campo não existir 
-  }
-  catch (error) {
-    throw new Error(`Erro ao buscar username com Id ${userId}: ${error.message}`)
+    return dados.esportes || null // retorna null se o campo não existir
+  } catch {
+    throw new Error(`Erro ao buscar esportes do usuário com Id ${userId}: ${error.message}`);
   }
 }
 
-async function getSeguidos(userId) {
-  const snapshot = await db.collection(`users/${userId}/seguindo`).get();
-  return snapshot.docs.map(doc => doc.id);
-}
-
-module.exports = {
-  createUserInFirestore,
-  listUsersFromFirestore,
-  findUserByEmail,
-  usuarioExiste,
-  seguirUsuarioDB,
-  buscarImagemUsuarioDB,
-  buscarUsernameComId,
-  getSeguidos
-};
+module.exports = { createUserInFirestore, listUsersFromFirestore, findUserByEmail, usuarioExiste, seguirUsuarioDB, buscarImagemUsuarioDB, buscarUsernameComId, pegarEsportesUser };

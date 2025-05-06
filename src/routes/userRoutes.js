@@ -262,4 +262,55 @@ router.post("/seguir", userController.seguirUsuario);
  */
 router.get("/users/:userId/foto", userController.buscarImagemUsuario);
 
+/**
+ * @swagger
+ * /users/{userId}/comparar-esportes:
+ *   get:
+ *     summary: Comparar esportes entre usuários
+ *     description: Retorna os IDs de usuários que têm esportes em comum com o usuário especificado.
+ *     tags:
+ *       - Usuários
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário principal
+ *     responses:
+ *       200:
+ *         description: Lista de usuários semelhantes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 semelhantes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["user123", "user456"]
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Erro interno do servidor
+ */
+router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
+
 module.exports = router;
