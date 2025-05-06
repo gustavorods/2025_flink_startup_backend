@@ -1,5 +1,6 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
 const { seguirUsuarioDB, usuarioExiste } = require("../models/userModel");
+const { compararEsportesEntreUsers } = require("../services/userServices");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -145,4 +146,33 @@ async function buscarImagemUsuario(req, res) {
   }
 }
 
-module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario };
+/**
+ * Controller que compara os esportes de um usuário com os de outros
+ */
+const compararEsportes = async (req, res) => {
+  try {
+      const userId = req.params.userId;
+
+      // Busca todos os usuários
+      const users = await listUsersFromFirestore();
+
+      // Encontra o usuário principal
+      const userPrincipal = users.find(user => user.id === userId);
+
+      if (!userPrincipal) {
+          return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      // Chama o service para comparar os esportes
+      const semelhantes = await compararEsportesEntreUsers(userId, userPrincipal.esportes);
+
+      // Retorna os usuários semelhantes
+      res.status(200).json({ semelhantes });
+  } catch (error) {
+      console.error("Erro ao comparar esportes:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+  }
+};
+
+
+module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes };
