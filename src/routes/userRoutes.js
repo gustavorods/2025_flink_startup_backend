@@ -368,4 +368,52 @@ router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
  */
 router.put('/users/:id/alterar', userController.atualizarUsuarioController);
 
+
+/**
+ * @swagger
+ * /users/{userId}/pegar-username-id:
+ *   get:
+ *     summary: Retorna o username de um usuário com base no ID
+ *     description: Esta rota busca o username de um usuário fornecendo o `userId`.
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID do usuário para buscar o username.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Username encontrado com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                   example: "usuario_exemplo"
+ *       404:
+ *         description: Usuário não encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuário não encontrado"
+ *       500:
+ *         description: Erro no servidor ao buscar o username.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro ao buscar username com Id {userId}: {erro}"
+ */
+router.get('/users/:userId/pegar-username-id', userController.buscarUsernameController);
+
 module.exports = router;

@@ -1,10 +1,31 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
-const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore } = require("../models/userModel");
+const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore, buscarUsernameComId } = require("../models/userModel");
 const { compararEsportesEntreUsers } = require("../services/userServices");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { userSchema } = require('../schemas/userSchema'); // importa o schema
+
+// Controller para buscar o username com base no id
+const buscarUsernameController = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Chamando a função de serviço para buscar o username
+    const username = await buscarUsernameComId(userId);
+
+    if (username === null) {
+      // Caso o username não seja encontrado, retorna erro 404
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Retorna o username encontrado
+    return res.status(200).json({ username });
+  } catch (error) {
+    // Caso ocorra algum erro, retorna o erro
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 async function atualizarUsuarioController(req, res) {
   const userId = req.params.id;
@@ -187,4 +208,4 @@ const compararEsportes = async (req, res) => {
 };
 
 
-module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes, atualizarUsuarioController };
+module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes, atualizarUsuarioController, buscarUsernameController };
