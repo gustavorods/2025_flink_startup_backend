@@ -41,7 +41,7 @@ async function getPostsByUserIds(userIds, limit = 10) {
       .orderBy("created_at", "desc")
       .limit(limit)
       .get();
-    console.log(`Query snapshot for userIds ${group}:`, querySnapshot.docs.length);
+    // console.log(`Query snapshot for userIds ${group}:`, querySnapshot.docs.length);
 
 
     querySnapshot.forEach(doc => {

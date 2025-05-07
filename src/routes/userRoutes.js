@@ -264,7 +264,7 @@ router.get("/users/:userId/foto", userController.buscarImagemUsuario);
 
 /**
  * @swagger
- * /users/{userId}/comparar-esportes:
+ * /api/users/{userId}/comparar-esportes:
  *   get:
  *     summary: Comparar esportes entre usuários
  *     description: Retorna os IDs de usuários que têm esportes em comum com o usuário especificado.

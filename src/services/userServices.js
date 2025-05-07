@@ -1,5 +1,5 @@
 // Importa o model que acessa o banco
-const { listUsersFromFirestore } = require("../models/userModel");
+const { listUsersFromFirestore, getSeguidos } = require("../models/userModel");
 
 /**
  * Compara os esportes do usuário principal com os demais usuários
@@ -9,8 +9,13 @@ const { listUsersFromFirestore } = require("../models/userModel");
  */
 async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
     // Busca todos os usuários cadastrados
-    const users = await listUsersFromFirestore();
-
+    const [users, quemUserPrincipalSegueArray] = await Promise.all([
+        listUsersFromFirestore(),
+        getSeguidos(userId) // Busca quem o usuário principal segue
+    ]);
+    
+    // console.log("quemUserPrincipalSegue (IDs da subcoleção):", quemUserPrincipalSegueArray);
+    
     // Lista de usuários com esportes em comum
     let usuariosSemelhantes = [];
 
@@ -22,18 +27,22 @@ async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
         if (users[i].id === userId) {
             continue;  // Pula o próprio usuário
         }
+        
+        // Verifica se o usuário principal já segue este usuário
+        const jaSegue = quemUserPrincipalSegueArray.includes(users[i].id);
+        console.log("jaSegue", jaSegue);
 
         // Verifica se há ao menos um esporte em comum
         const temEsporteEmComum = esportesUsuario.some(esporte =>
             esportesUserPrincipal.includes(esporte)
         );
 
-        // Se houver, adiciona o usuário completo na lista
-        if (temEsporteEmComum) {
+        // Se houver esporte em comum E o usuário principal NÃO seguir este usuário, adiciona o usuário completo na lista
+        if (temEsporteEmComum && !jaSegue) {
             usuariosSemelhantes.push(users[i]);
         }
     }
-
+    // console.log(usuariosSemelhantes);
     return usuariosSemelhantes;
 }
 
