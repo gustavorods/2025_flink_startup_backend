@@ -248,6 +248,41 @@ async function getPostsByUserIdOrdered(userId) {
   }
 }
 
+/**
+ * Cria um novo post no Firestore.
+ * @param {string} userId - ID do usuário que está criando o post.
+ * @param {string} description - Descrição do post.
+ * @param {string} imageUrl - URL da imagem do post.
+ * @param {Array<string>} sportsArray - Array de esportes relacionados ao post.
+ * @returns {Promise<Object>} O objeto do post criado com seu ID.
+ */
+async function createPostInFirestore(userId, description, imageUrl, sportsArray) {
+  try {
+    // Buscar nome e fotoPerfil do usuário
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      throw new Error('Usuário criador do post não encontrado.');
+    }
+    const userData = userDoc.data();
+    const nomeUsuario = userData.nome || 'Usuário Anônimo'; // Fallback
+    const fotoPerfilUsuario = userData.fotoPerfil || null; // Fallback
+
+    const newPostRef = await db.collection('posts').add({
+      userId,
+      description,
+      image: imageUrl,
+      sports: sportsArray,
+      nome: nomeUsuario,
+      fotoPerfil: fotoPerfilUsuario,
+      created_at: Timestamp.now(), // Usa Timestamp do Firestore
+    });
+    return { id: newPostRef.id, userId, description, image: imageUrl, sports: sportsArray, nome: nomeUsuario, fotoPerfil: fotoPerfilUsuario, created_at: new Date() };
+  } catch (error) {
+    console.error('Erro ao criar post no Firestore Model:', error.message);
+    throw new Error('Erro ao criar post no Firestore');
+  }
+}
+
 module.exports = {
   createUserInFirestore,
   listUsersFromFirestore,
@@ -260,5 +295,6 @@ module.exports = {
   getSeguidos,
   atualizarUsuarioFirestore,
   getUserDataById,
-  getPostsByUserIdOrdered
+  getPostsByUserIdOrdered,
+  createPostInFirestore
 };

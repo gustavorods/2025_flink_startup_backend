@@ -255,6 +255,34 @@ const getUserPostsChronologically = async (req, res) => {
   }
 };
 
+const createPostController = async (req, res) => {
+  try {
+    const userId = req.user.userId; 
+    const { description, image, sports } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    if (!description || !image || !sports) {
+      return res.status(400).json({ message: 'Campos description, image e sports são obrigatórios.' });
+    }
+    if (!Array.isArray(sports)) {
+      return res.status(400).json({ message: 'O campo sports deve ser um array.' });
+    }
+
+    const novoPost = await userServices.createNewPost(userId, description, image, sports);
+    res.status(201).json(novoPost);
+
+  } catch (error) {
+    console.error('Erro no controller ao criar post:', error.message);
+    if (error.message.includes('Dados inválidos') || error.message.includes('Usuário criador do post não encontrado')) {
+        return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Erro interno ao criar post.', error: error.message });
+  }
+};
+
 
 module.exports = {
   createUser,
@@ -266,5 +294,6 @@ module.exports = {
   atualizarUsuarioController,
   buscarUsernameController,
   getUserProfileById,
-  getUserPostsChronologically
+  getUserPostsChronologically,
+  createPostController
 };

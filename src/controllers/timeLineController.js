@@ -16,7 +16,7 @@ async function obterDadosDaPostagem(req, res) {
 
   try {
     const postData = await obterDadosPost(postId);
-    res.status(200).json(postData); // Retorna os dados da postagem
+    res.status(200).json(postData);
   } catch (error) {
     console.error("Erro ao obter dados da postagem:", error.message);
     res.status(404).json({ error: error.message });

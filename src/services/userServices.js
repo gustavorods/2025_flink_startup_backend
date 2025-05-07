@@ -1,5 +1,5 @@
 // Importa o model que acessa o banco
-const { listUsersFromFirestore, getSeguidos, getUserDataById, getPostsByUserIdOrdered } = require("../models/userModel");
+const { listUsersFromFirestore, getSeguidos, getUserDataById, getPostsByUserIdOrdered, createPostInFirestore } = require("../models/userModel");
 
 /**
  * Compara os esportes do usuário principal com os demais usuários
@@ -73,8 +73,24 @@ async function fetchUserPostsChronologically(userId) {
     return await getPostsByUserIdOrdered(userId);
 }
 
+/**
+ * Cria um novo post para um usuário.
+ * @param {string} userId - ID do usuário que está criando o post.
+ * @param {string} description - Descrição do post.
+ * @param {string} imageUrl - URL da imagem do post.
+ * @param {Array<string>} sportsArray - Array de esportes relacionados ao post.
+ * @returns {Promise<Object>} O post criado.
+ */
+async function createNewPost(userId, description, imageUrl, sportsArray) {
+    if (!description || !imageUrl || !sportsArray || !Array.isArray(sportsArray)) {
+        throw new Error('Dados inválidos para criar o post.');
+    }
+    return await createPostInFirestore(userId, description, imageUrl, sportsArray);
+}
+
 module.exports = {
     compararEsportesEntreUsers,
     fetchUserDataById,
-    fetchUserPostsChronologically
+    fetchUserPostsChronologically,
+    createNewPost
 };

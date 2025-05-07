@@ -42,8 +42,24 @@ const swaggerOptions = {
         version: '1.0.0',
         description: 'Documentação sobre as rotas',
       },
+      servers: [ 
+        {
+          url: `http://localhost:${port}`,
+          description: 'Servidor de Desenvolvimento Local'
+        }
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description: "Insira o token JWT no formato: Bearer {token}"
+          }
+        }
+      }
     },
-    apis: ['./src/routes/*.js'], // Caminho para seus arquivos de rota
+    apis: ['./src/routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);

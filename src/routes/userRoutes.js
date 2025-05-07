@@ -512,6 +512,81 @@ router.get('/users/:userId/profile', userController.getUserProfileById);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get('/users/:userId/posts', userController.getUserPostsChronologically); // Certifique-se que userController.getUserPostsChronologically está exportado e importado
+router.get('/users/:userId/posts', userController.getUserPostsChronologically);
+
+/**
+ * @swagger
+ * /api/posts:
+ *   post:
+ *     summary: Cria um novo post para o usuário autenticado
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - description
+ *               - image
+ *               - sports
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 example: "Partida de futebol no parque"
+ *               image:
+ *                 type: string
+ *                 example: "https://exemplo.com/imagem.jpg"
+ *               sports:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["futebol", "vôlei"]
+ *     responses:
+ *       201:
+ *         description: Post criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 image:
+ *                   type: string
+ *                 sports:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Campos inválidos ou usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Token ausente ou inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post('/posts', authenticateToken, userController.createPostController);
 
 module.exports = router;
