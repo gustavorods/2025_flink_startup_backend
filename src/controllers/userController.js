@@ -233,6 +233,28 @@ const getUserProfileById = async (req, res) => {
   }
 };
 
+const getUserPostsChronologically = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: 'ID do usuário é obrigatório.' });
+    }
+
+    const posts = await userServices.fetchUserPostsChronologically(userId); // Certifique-se que userServices está acessível
+
+    // Se o usuário não for encontrado (verificado no service), o service já lança um erro.
+    // Se o usuário existe mas não tem posts, a função do model retorna um array vazio.
+    res.status(200).json(posts);
+
+  } catch (error) {
+    console.error('Erro no controller ao buscar posts do usuário:', error.message);
+    if (error.message === 'Usuário não encontrado') {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    res.status(500).json({ message: 'Erro interno ao buscar posts do usuário.', error: error.message });
+  }
+};
+
 
 module.exports = {
   createUser,
@@ -243,5 +265,6 @@ module.exports = {
   compararEsportes,
   atualizarUsuarioController,
   buscarUsernameController,
-  getUserProfileById
+  getUserProfileById,
+  getUserPostsChronologically
 };

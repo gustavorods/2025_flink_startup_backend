@@ -1,5 +1,5 @@
 // Importa o model que acessa o banco
-const { listUsersFromFirestore, getSeguidos, getUserDataById } = require("../models/userModel");
+const { listUsersFromFirestore, getSeguidos, getUserDataById, getPostsByUserIdOrdered } = require("../models/userModel");
 
 /**
  * Compara os esportes do usuário principal com os demais usuários
@@ -59,8 +59,22 @@ async function fetchUserDataById(userId) {
     return user;
 }
 
+/**
+ * Busca os posts de um usuário específico em ordem cronológica (mais recentes primeiro).
+ * @param {string} userId - O ID do usuário.
+ * @returns {Promise<Array<Object>>} Array com os posts do usuário.
+ */
+async function fetchUserPostsChronologically(userId) {
+    // Verifica se o usuário existe antes de buscar os posts
+    const userExists = await getUserDataById(userId); 
+    if (!userExists) {
+        throw new Error('Usuário não encontrado'); // Lança um erro que pode ser capturado no controller
+    }
+    return await getPostsByUserIdOrdered(userId);
+}
 
 module.exports = {
     compararEsportesEntreUsers,
-    fetchUserDataById
+    fetchUserDataById,
+    fetchUserPostsChronologically
 };

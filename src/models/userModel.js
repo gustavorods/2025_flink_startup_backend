@@ -221,6 +221,33 @@ async function getUserDataById(userId) {
   }
 }
 
+/**
+ * Busca os posts de um usuário específico, ordenados por data de criação (mais recentes primeiro).
+ * @param {string} userId - ID do usuário cujos posts serão buscados.
+ * @returns {Promise<Array<Object>>} Array com os posts do usuário.
+ */
+async function getPostsByUserIdOrdered(userId) {
+  try {
+    const postsSnapshot = await db.collection('posts')
+                                  .where('userId', '==', userId)
+                                  .orderBy('created_at', 'desc') // Ordena por 'created_at' em ordem descendente
+                                  .get();
+
+    if (postsSnapshot.empty) {
+      return []; // Nenhum post encontrado para este usuário
+    }
+
+    const posts = postsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return posts;
+  } catch (error) {
+    console.error(`Erro ao buscar posts do usuário (${userId}) no Firestore:`, error.message);
+    throw new Error('Erro ao buscar posts do usuário no Firestore');
+  }
+}
+
 module.exports = {
   createUserInFirestore,
   listUsersFromFirestore,
@@ -232,5 +259,6 @@ module.exports = {
   pegarEsportesUser,
   getSeguidos,
   atualizarUsuarioFirestore,
-  getUserDataById
+  getUserDataById,
+  getPostsByUserIdOrdered
 };

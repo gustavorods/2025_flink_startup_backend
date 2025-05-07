@@ -466,4 +466,52 @@ router.get('/users/:userId/pegar-username-id', userController.buscarUsernameCont
  */
 router.get('/users/:userId/profile', userController.getUserProfileById);
 
+/**
+ * @swagger
+ * /api/users/{userId}/posts:
+ *   get:
+ *     summary: Retorna os posts de um usuário específico em ordem cronológica.
+ *     description: Busca e retorna todos os posts de um usuário, ordenados do mais recente para o mais antigo.
+ *     tags:
+ *       - Usuários
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID do usuário para buscar os posts.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Posts do usuário encontrados com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: "post123"
+ *                   userId:
+ *                     type: string
+ *                     example: "Gn28kPrRMW9IYigM8ky9"
+ *                   texto:
+ *                     type: string
+ *                     example: "Meu primeiro post!"
+ *                   createdAt:
+ *                     type: string # Ou object se for retornar o Timestamp do Firestore
+ *                     format: date-time
+ *                     example: "2024-07-30T10:00:00.000Z"
+ *       400:
+ *         description: ID do usuário não fornecido.
+ *       404:
+ *         description: Usuário não encontrado.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.get('/users/:userId/posts', userController.getUserPostsChronologically); // Certifique-se que userController.getUserPostsChronologically está exportado e importado
+
 module.exports = router;
