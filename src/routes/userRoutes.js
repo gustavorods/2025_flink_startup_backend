@@ -516,7 +516,7 @@ router.get('/users/:userId/posts', userController.getUserPostsChronologically);
 
 /**
  * @swagger
- * /api/posts:
+ *  :
  *   post:
  *     summary: Cria um novo post para o usuário autenticado
  *     tags:

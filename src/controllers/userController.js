@@ -264,7 +264,7 @@ const createPostController = async (req, res) => {
       return res.status(401).json({ message: 'Usuário não autenticado.' });
     }
 
-    if (!description || !image || !sports) {
+    if (!description || !sports) {
       return res.status(400).json({ message: 'Campos description, image e sports são obrigatórios.' });
     }
     if (!Array.isArray(sports)) {

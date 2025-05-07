@@ -82,7 +82,7 @@ async function fetchUserPostsChronologically(userId) {
  * @returns {Promise<Object>} O post criado.
  */
 async function createNewPost(userId, description, imageUrl, sportsArray) {
-    if (!description || !imageUrl || !sportsArray || !Array.isArray(sportsArray)) {
+    if (!description || !sportsArray || !Array.isArray(sportsArray)) {
         throw new Error('Dados inválidos para criar o post.');
     }
     return await createPostInFirestore(userId, description, imageUrl, sportsArray);
