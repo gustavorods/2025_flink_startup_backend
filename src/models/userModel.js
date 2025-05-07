@@ -159,6 +159,45 @@ async function getSeguidos(userId) {
   return snapshot.docs.map(doc => doc.id);
 }
 
+/**
+ * Atualiza os dados de um usuário no Firestore apenas com os campos alterados
+ * @param {string} userId - ID do usuário
+ * @param {Object} novosDados - Objeto com os novos dados (parciais ou completos)
+ */
+async function atualizarUsuarioFirestore(userId, novosDados) {
+  try {
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    const dadosAtuais = userDoc.data();
+    const dadosParaAtualizar = {};
+
+    // Compara apenas campos que mudaram
+    for (const key in novosDados) {
+      if (
+        novosDados[key] !== undefined && 
+        JSON.stringify(novosDados[key]) !== JSON.stringify(dadosAtuais[key])
+      ) {
+        dadosParaAtualizar[key] = novosDados[key];
+      }
+    }
+
+    if (Object.keys(dadosParaAtualizar).length === 0) {
+      return 'Nenhuma alteração detectada';
+    }
+
+    await userRef.update(dadosParaAtualizar);
+    return 'Dados atualizados com sucesso';
+  } catch (error) {
+    console.error('Erro ao atualizar usuário no Firestore:', error.message);
+    throw new Error('Erro ao atualizar usuário no Firestore');
+  }
+}
+
 module.exports = {
   createUserInFirestore,
   listUsersFromFirestore,
@@ -168,5 +207,6 @@ module.exports = {
   buscarImagemUsuarioDB,
   buscarUsernameComId,
   pegarEsportesUser,
-  getSeguidos
+  getSeguidos,
+  atualizarUsuarioFirestore
 };

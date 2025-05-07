@@ -1,10 +1,22 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
-const { seguirUsuarioDB, usuarioExiste } = require("../models/userModel");
+const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore } = require("../models/userModel");
 const { compararEsportesEntreUsers } = require("../services/userServices");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { userSchema } = require('../schemas/userSchema'); // importa o schema
+
+async function atualizarUsuarioController(req, res) {
+  const userId = req.params.id;
+  const novosDados = req.body;
+
+  try {
+    const resultado = await atualizarUsuarioFirestore(userId, novosDados);
+    return res.status(200).json({ mensagem: resultado });
+  } catch (error) {
+    return res.status(500).json({ erro: error.message });
+  }
+}
 
 // Função para seguir outro usuário verificando a existência dos usuários
 async function seguirUsuario(req, res) {
@@ -175,4 +187,4 @@ const compararEsportes = async (req, res) => {
 };
 
 
-module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes };
+module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes, atualizarUsuarioController };

@@ -313,4 +313,59 @@ router.get("/users/:userId/foto", userController.buscarImagemUsuario);
  */
 router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
 
+
+/**
+ * @swagger
+ * /users/{id}/alterar:
+ *   put:
+ *     summary: Atualiza dados do usuário no Firestore
+ *     tags:
+ *       - Usuários
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário a ser atualizado
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             example:
+ *               nome: "Novo Nome"
+ *               sobrenome: "Novo Sobrenome"
+ *               esportes: ["futebol", "natação"]
+ *               redes_sociais:
+ *                 instagram: "novo_insta"
+ *     responses:
+ *       200:
+ *         description: Dados atualizados com sucesso ou nenhuma alteração detectada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 mensagem: "Dados atualizados com sucesso"
+ *       400:
+ *         description: Requisição mal formatada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 erro: "ID do usuário é obrigatório"
+ *       500:
+ *         description: Erro interno no servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 erro: "Erro ao atualizar usuário no Firestore"
+ */
+router.put('/users/:id/alterar', userController.atualizarUsuarioController);
+
 module.exports = router;
