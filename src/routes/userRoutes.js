@@ -316,7 +316,7 @@ router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
 
 /**
  * @swagger
- * /users/{id}/alterar:
+ * /api/users/{id}/alterar:
  *   put:
  *     summary: Atualiza dados do usuário no Firestore
  *     tags:
@@ -464,6 +464,6 @@ router.get('/users/:userId/pegar-username-id', userController.buscarUsernameCont
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get('/users/:userId/profile', userController.getUserProfileById); // Certifique-se que userController.getUserProfileById está exportado e importado corretamente
+router.get('/users/:userId/profile', userController.getUserProfileById);
 
 module.exports = router;

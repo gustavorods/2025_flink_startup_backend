@@ -30,7 +30,7 @@ async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
         
         // Verifica se o usuário principal já segue este usuário
         const jaSegue = quemUserPrincipalSegueArray.includes(users[i].id);
-        console.log("jaSegue", jaSegue);
+        // console.log("jaSegue", jaSegue);
 
         // Verifica se há ao menos um esporte em comum
         const temEsporteEmComum = esportesUsuario.some(esporte =>
