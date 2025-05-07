@@ -1,5 +1,6 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
 const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore, buscarUsernameComId } = require("../models/userModel");
+const userServices = require("../services/userServices");
 const { compararEsportesEntreUsers } = require("../services/userServices");
 require('dotenv').config();
 const bcrypt = require('bcrypt');
@@ -184,28 +185,63 @@ async function buscarImagemUsuario(req, res) {
  */
 const compararEsportes = async (req, res) => {
   try {
-      const userId = req.params.userId;
+    const userId = req.params.userId;
 
-      // Busca todos os usuários
-      const users = await listUsersFromFirestore();
+    // Busca todos os usuários
+    const users = await listUsersFromFirestore();
 
-      // Encontra o usuário principal
-      const userPrincipal = users.find(user => user.id === userId);
+    // Encontra o usuário principal
+    const userPrincipal = users.find(user => user.id === userId);
 
-      if (!userPrincipal) {
-          return res.status(404).json({ message: "Usuário não encontrado" });
-      }
+    if (!userPrincipal) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
 
-      // Chama o service para comparar os esportes
-      const semelhantes = await compararEsportesEntreUsers(userId, userPrincipal.esportes);
+    // Chama o service para comparar os esportes
+    const semelhantes = await compararEsportesEntreUsers(userId, userPrincipal.esportes);
 
-      // Retorna os usuários semelhantes
-      res.status(200).json({ semelhantes });
+    // Retorna os usuários semelhantes
+    res.status(200).json({ semelhantes });
   } catch (error) {
-      console.error("Erro ao comparar esportes:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
+    console.error("Erro ao comparar esportes:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+};
+
+/**
+ * @description Busca e retorna os dados de um usuário pelo ID.
+ * @param {object} req - Objeto de requisição do Express.
+ * @param {object} res - Objeto de resposta do Express.
+ */
+const getUserProfileById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: 'ID do usuário é obrigatório.' });
+    }
+
+    const userData = await userServices.fetchUserDataById(userId);
+
+    if (!userData) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    res.status(200).json(userData);
+  } catch (error) {
+    console.error('Erro no controller ao buscar perfil do usuário:', error.message);
+    res.status(500).json({ message: 'Erro interno ao buscar dados do usuário.', error: error.message });
   }
 };
 
 
-module.exports = { createUser, getAllUsers,loginUser, seguirUsuario, buscarImagemUsuario, compararEsportes, atualizarUsuarioController, buscarUsernameController };
+module.exports = {
+  createUser,
+  getAllUsers,
+  loginUser,
+  seguirUsuario,
+  buscarImagemUsuario,
+  compararEsportes,
+  atualizarUsuarioController,
+  buscarUsernameController,
+  getUserProfileById
+};

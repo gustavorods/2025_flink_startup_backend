@@ -1,5 +1,5 @@
 // Importa o model que acessa o banco
-const { listUsersFromFirestore, getSeguidos } = require("../models/userModel");
+const { listUsersFromFirestore, getSeguidos, getUserDataById } = require("../models/userModel");
 
 /**
  * Compara os esportes do usuário principal com os demais usuários
@@ -46,6 +46,21 @@ async function compararEsportesEntreUsers(userId, esportesUserPrincipal) {
     return usuariosSemelhantes;
 }
 
+/**
+ * Busca os dados de um usuário específico pelo ID.
+ * @param {string} userId - O ID do usuário a ser buscado.
+ * @returns {Promise<Object|null>} Objeto com os dados do usuário ou null se não encontrado.
+ */
+async function fetchUserDataById(userId) {
+    const user = await getUserDataById(userId);
+    if (!user) {
+        return null;
+    }
+    return user;
+}
+
+
 module.exports = {
-    compararEsportesEntreUsers
+    compararEsportesEntreUsers,
+    fetchUserDataById
 };

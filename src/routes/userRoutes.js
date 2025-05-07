@@ -416,4 +416,54 @@ router.put('/users/:id/alterar', userController.atualizarUsuarioController);
  */
 router.get('/users/:userId/pegar-username-id', userController.buscarUsernameController);
 
+/**
+ * @swagger
+ * /api/users/{userId}/profile:
+ *   get:
+ *     summary: Retorna os dados de perfil de um usuário específico.
+ *     description: Busca e retorna todos os dados de um usuário (exceto a senha) com base no ID fornecido.
+ *     tags:
+ *       - Usuários
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID do usuário para buscar os dados do perfil.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Dados do perfil do usuário encontrados com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "Gn28kPrRMW9IYigM8ky9"
+ *                 nome:
+ *                   type: string
+ *                   example: "Hernandes"
+ *                 sobrenome:
+ *                   type: string
+ *                   example: "Arthur"
+ *                 email:
+ *                   type: string
+ *                   example: "hernandeshass910@gmail.com"
+ *                 esportes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["Futebol", "Vôlei"]
+ *                 # Adicione outros campos que seu usuário possa ter, exceto a senha
+ *       400:
+ *         description: ID do usuário não fornecido.
+ *       404:
+ *         description: Usuário não encontrado.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.get('/users/:userId/profile', userController.getUserProfileById); // Certifique-se que userController.getUserProfileById está exportado e importado corretamente
+
 module.exports = router;

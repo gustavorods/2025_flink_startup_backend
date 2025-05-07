@@ -198,6 +198,29 @@ async function atualizarUsuarioFirestore(userId, novosDados) {
   }
 }
 
+/**
+ * Busca todos os dados de um usuário pelo ID, exceto a senha.
+ * @param {string} userId - ID do usuário a ser buscado.
+ * @returns {Promise<Object|null>} Objeto com os dados do usuário (sem senha) ou null se não encontrado.
+ */
+async function getUserDataById(userId) {
+  try {
+    const userDoc = await db.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      return null; // Usuário não encontrado
+    }
+
+    const userData = userDoc.data();
+    delete userData.password; // Remove o campo senha para não expô-lo
+
+    return { id: userDoc.id, ...userData };
+  } catch (error) {
+    console.error(`Erro ao buscar dados do usuário por ID (${userId}) no Firestore:`, error.message);
+    throw new Error('Erro ao buscar dados do usuário no Firestore');
+  }
+}
+
 module.exports = {
   createUserInFirestore,
   listUsersFromFirestore,
@@ -208,5 +231,6 @@ module.exports = {
   buscarUsernameComId,
   pegarEsportesUser,
   getSeguidos,
-  atualizarUsuarioFirestore
+  atualizarUsuarioFirestore,
+  getUserDataById
 };
