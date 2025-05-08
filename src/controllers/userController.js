@@ -1,5 +1,5 @@
 const { createUserInFirestore, listUsersFromFirestore, findUserByEmail, buscarImagemUsuarioDB } = require('../models/userModel');
-const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore, buscarUsernameComId } = require("../models/userModel");
+const { seguirUsuarioDB, usuarioExiste, atualizarUsuarioFirestore, buscarUsernameComId, getUserDataById } = require("../models/userModel");
 const userServices = require("../services/userServices");
 const { compararEsportesEntreUsers } = require("../services/userServices");
 require('dotenv').config();
@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { userSchema } = require('../schemas/userSchema'); // importa o schema
 const { uploadImage } = require('../models/imageModel'); // Import for image upload
+const db = require('../config/firebaseConfig'); // Import Firestore instance for generating IDs
 
 // Controller para buscar o username com base no id
 const buscarUsernameController = async (req, res) => {
@@ -31,11 +32,76 @@ const buscarUsernameController = async (req, res) => {
 
 async function atualizarUsuarioController(req, res) {
   const userId = req.params.id;
-  const novosDados = req.body;
+  const profileImageFile = req.file; // Arquivo da nova imagem de perfil (de multer)
+  const requestBody = { ...req.body };
+
+  // Pre-processamento para 'esportes' se presente
+  if (requestBody.esportes !== undefined) {
+    if (typeof requestBody.esportes === 'string') {
+      requestBody.esportes = requestBody.esportes.split(',').map(sport => sport.trim()).filter(sport => sport);
+      if (requestBody.esportes.length === 0 && req.body.esportes.trim() !== '') {
+          requestBody.esportes = [req.body.esportes.trim()];
+      } else if (requestBody.esportes.length === 0 && req.body.esportes.trim() === '') {
+          requestBody.esportes = [];
+      }
+    } else if (!Array.isArray(requestBody.esportes)) {
+      // Se não for string nem array, pode ser um erro de formatação, tratar ou remover
+      delete requestBody.esportes; // ou retornar erro
+    }
+  }
+
+  // Pre-processamento para 'redes_sociais' se presente
+  if (requestBody.redes_sociais !== undefined) {
+    if (typeof requestBody.redes_sociais === 'string') {
+      try {
+        requestBody.redes_sociais = JSON.parse(requestBody.redes_sociais);
+      } catch (e) {
+        return res.status(400).json({ errors: [{ path: ['redes_sociais'], message: 'Formato inválido para redes_sociais. Esperado um objeto JSON stringificado.' }] });
+      }
+    } else if (typeof requestBody.redes_sociais !== 'object' || requestBody.redes_sociais === null) {
+        // Se não for string nem objeto válido, tratar ou remover
+        delete requestBody.redes_sociais; // ou retornar erro
+    }
+  }
+
+  // Remover campos vazios ou indefinidos para não sobrescrever com null/undefined desnecessariamente
+  // A função atualizarUsuarioFirestore já lida com a comparação, mas é bom limpar aqui.
+  const dadosParaAtualizar = {};
+  for (const key in requestBody) {
+    if (requestBody[key] !== undefined && requestBody[key] !== null && (typeof requestBody[key] !== 'string' || requestBody[key].trim() !== '')) {
+      dadosParaAtualizar[key] = requestBody[key];
+    }
+  }
 
   try {
-    const resultado = await atualizarUsuarioFirestore(userId, novosDados);
-    return res.status(200).json({ mensagem: resultado });
+    let mensagemResultado = "Nenhuma alteração textual detectada.";
+
+    // 1. Atualizar dados textuais se houver
+    if (Object.keys(dadosParaAtualizar).length > 0) {
+      const resultadoTextual = await atualizarUsuarioFirestore(userId, dadosParaAtualizar);
+      mensagemResultado = resultadoTextual; // Pode ser "Dados atualizados com sucesso" ou "Nenhuma alteração detectada"
+    }
+
+    // 2. Se uma nova imagem de perfil foi enviada, faz o upload
+    if (profileImageFile) {
+      try {
+        await uploadImage(userId, null, profileImageFile, 'profile', {});
+        console.log(`Nova imagem de perfil para o usuário ${userId} processada.`);
+        // Se a mensagem anterior era "Nenhuma alteração detectada", atualiza para indicar que a imagem mudou.
+        if (mensagemResultado === "Nenhuma alteração detectada." || mensagemResultado === "Nenhuma alteração textual detectada.") {
+            mensagemResultado = "Imagem de perfil atualizada com sucesso.";
+        } else if (mensagemResultado === "Dados atualizados com sucesso") {
+            mensagemResultado = "Dados e imagem de perfil atualizados com sucesso.";
+        }
+      } catch (uploadError) {
+        console.error(`Erro ao fazer upload da nova imagem de perfil para ${userId}:`, uploadError.message);
+        // Decide como lidar com o erro de upload. Pode adicionar ao resultado ou retornar erro separado.
+        // Por enquanto, se os dados textuais foram atualizados, o sucesso deles prevalece.
+        return res.status(500).json({ erro: `Dados textuais podem ter sido atualizados, mas houve erro ao salvar a nova imagem de perfil: ${uploadError.message}` });
+      }
+    }
+
+    return res.status(200).json({ mensagem: mensagemResultado });
   } catch (error) {
     return res.status(500).json({ erro: error.message });
   }
@@ -299,26 +365,66 @@ const getUserPostsChronologically = async (req, res) => {
 
 const createPostController = async (req, res) => {
   try {
-    const userId = req.user.userId; 
-    const { description, image, sports } = req.body;
+    const userId = req.user.userId; // From authenticateToken middleware
+
+    console.log('User ID from token:', userId); // Debug log to check userId
+    console.log('Request body:', req.body); // Debug log to check request body
+    
+    const file = req.file; // From multer middleware (upload.single('postImage'))
+    const { description } = req.body;
+    let { sports } = req.body; // Can be a string or array from form-data
 
     if (!userId) {
       return res.status(401).json({ message: 'Usuário não autenticado.' });
     }
 
-    if (!description || !sports) {
-      return res.status(400).json({ message: 'Campos description, image e sports são obrigatórios.' });
-    }
-    if (!Array.isArray(sports)) {
-      return res.status(400).json({ message: 'O campo sports deve ser um array.' });
+    if (!file) {
+      return res.status(400).json({ message: 'Nenhuma imagem foi enviada. O campo "postImage" é obrigatório.' });
     }
 
-    const novoPost = await userServices.createNewPost(userId, description, image, sports);
-    res.status(201).json(novoPost);
+    if (!description) {
+      return res.status(400).json({ message: 'O campo "description" é obrigatório.' });
+    }
+
+    // Handle sports: ensure it's an array
+    let sportsArray = [];
+    if (sports) {
+      if (Array.isArray(sports)) {
+        sportsArray = sports;
+      } else if (typeof sports === 'string') {
+        sportsArray = sports.split(',').map(s => s.trim()).filter(s => s);
+         if (sportsArray.length === 0 && sports.trim() !== '') {
+            sportsArray = [sports.trim()];
+        }
+      }
+    }
+    // if (sportsArray.length === 0) { // Decide if sports are mandatory
+    //   return res.status(400).json({ message: 'O campo "sports" é obrigatório e deve conter pelo menos uma tag.' });
+    // }
+
+    // Generate a unique ID for the post (used for S3 key and Firestore document ID)
+    const postId = db.collection('posts').doc().id;
+
+    // Fetch user's name and profile picture to include in the post details
+    const userData = await getUserDataById(userId);
+    if (!userData) {
+      return res.status(404).json({ message: 'Usuário criador do post não encontrado.' });
+    }
+
+    const postDetails = {
+      personName: userData.nome,
+      userProfileImageUrl: userData.profileImageUrl, // This comes from getUserDataById which reads 'profileImage'
+      postDescription: description,
+      postTags: sportsArray
+    };
+
+    const imageUrl = await uploadImage(userId, postId, file, 'post', postDetails);
+
+    res.status(201).json({ message: 'Post criado com sucesso!', id: postId, imageUrl, description, sports: sportsArray, userId, nome: userData.nome, fotoPerfil: postDetails.userProfileImageUrl });
 
   } catch (error) {
     console.error('Erro no controller ao criar post:', error.message);
-    if (error.message.includes('Dados inválidos') || error.message.includes('Usuário criador do post não encontrado')) {
+    if (error.message.includes('obrigatório') || error.message.includes('Usuário criador do post não encontrado')) {
         return res.status(400).json({ message: error.message });
     }
     res.status(500).json({ message: 'Erro interno ao criar post.', error: error.message });

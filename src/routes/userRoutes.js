@@ -342,7 +342,7 @@ router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             example:
@@ -351,6 +351,24 @@ router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
  *               esportes: ["futebol", "natação"]
  *               redes_sociais:
  *                 instagram: "novo_insta"
+ *               profileImage: null # Envie o arquivo binário aqui se for atualizar a imagem
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               sobrenome:
+ *                 type: string
+ *               esportes:
+ *                 type: array # Ou string separada por vírgulas
+ *                 items:
+ *                   type: string
+ *               redes_sociais:
+ *                 type: object # Ou string JSON
+ *               username:
+ *                  type: string
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Novo arquivo de imagem de perfil (opcional)."
  *     responses:
  *       200:
  *         description: Dados atualizados com sucesso ou nenhuma alteração detectada
@@ -377,7 +395,7 @@ router.get("/users/:userId/comparar-esportes", userController.compararEsportes);
  *               example:
  *                 erro: "Erro ao atualizar usuário no Firestore"
  */
-router.put('/users/:id/alterar', userController.atualizarUsuarioController);
+router.put('/users/:id/alterar', upload.single('profileImage'), userController.atualizarUsuarioController);
 
 
 /**
@@ -537,7 +555,7 @@ router.get('/users/:userId/posts', userController.getUserPostsChronologically);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data: # Changed from application/json
  *           schema:
  *             type: object
  *             required:
@@ -548,14 +566,16 @@ router.get('/users/:userId/posts', userController.getUserPostsChronologically);
  *               description:
  *                 type: string
  *                 example: "Partida de futebol no parque"
- *               image:
+ *               postImage: # Changed from 'image' to 'postImage' and type to binary
  *                 type: string
- *                 example: "https://exemplo.com/imagem.jpg"
+ *                 format: binary
+ *                 description: "Arquivo de imagem do post."
  *               sports:
  *                 type: array
  *                 items:
  *                   type: string
  *                 example: ["futebol", "vôlei"]
+ *                 description: "Tags de esportes. Envie múltiplos campos 'sports' para um array (ex: sports=futebol&sports=vôlei) ou um único campo com valores separados por vírgula que será tratado no backend."
  *     responses:
  *       201:
  *         description: Post criado com sucesso
@@ -565,6 +585,9 @@ router.get('/users/:userId/posts', userController.getUserPostsChronologically);
  *               type: object
  *               properties:
  *                 id:
+ *                   type: string
+ *                   description: "ID do post criado."
+ *                 message:
  *                   type: string
  *                 description:
  *                   type: string
@@ -598,6 +621,6 @@ router.get('/users/:userId/posts', userController.getUserPostsChronologically);
  *       500:
  *         description: Erro interno do servidor
  */
-router.post('/posts', authenticateToken, userController.createPostController);
+router.post('/posts', authenticateToken, upload.single('postImage'), userController.createPostController);
 
 module.exports = router;
