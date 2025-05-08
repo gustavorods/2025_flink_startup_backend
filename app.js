@@ -12,7 +12,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 // Configuração do CORS
 app.use(cors({
-  origin: 'https://flink-frontend-681c1ade16f22bfbb3b12faa.tcloud.site/', // URL do seu frontend React
+  origin: 'https://flink-frontend-681c1ade16f22bfbb3b12faa.tcloud.site', // URL do seu frontend React
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
