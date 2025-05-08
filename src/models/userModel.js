@@ -111,7 +111,7 @@ async function buscarImagemUsuarioDB(userId) {
     }
 
     const dados = doc.data();
-    return dados.image || null; // Changed to 'image' for profile picture
+    return dados.profileImage || null; // Changed to 'profileImage'
   } catch (error) {
     throw new Error(`Erro ao buscar imagem do usuário: ${error.message}`);
   }
@@ -215,9 +215,9 @@ async function getUserDataById(userId) {
     delete userData.password; // Remove o campo senha para não expô-lo
 
     // Ensure the profile image URL is consistent if it exists
-    // The field 'image' is now used for the main profile picture.
-    // 'fotoPerfil' might still be used in post documents, but for user documents, it's 'image'.
-    return { id: userDoc.id, ...userData, profileImageUrl: userData.image || null };
+    // The field 'profileImage' is now used for the main profile picture.
+    // 'fotoPerfil' in post documents will reference this.
+    return { id: userDoc.id, ...userData, profileImageUrl: userData.profileImage || null };
   } catch (error) {
     console.error(`Erro ao buscar dados do usuário por ID (${userId}) no Firestore:`, error.message);
     throw new Error('Erro ao buscar dados do usuário no Firestore');
@@ -268,7 +268,7 @@ async function createPostInFirestore(userId, description, imageUrl, sportsArray)
     }
     const userData = userDoc.data();
     const nomeUsuario = userData.nome || 'Usuário Anônimo'; // Fallback
-    const fotoPerfilUsuario = userData.image || null; // Use 'image' for user's profile pic in post context
+    const fotoPerfilUsuario = userData.profileImage || null; // Use 'profileImage' for user's profile pic in post context
 
     const newPostRef = await db.collection('posts').add({
       userId,
