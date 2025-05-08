@@ -6,6 +6,7 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { userSchema } = require('../schemas/userSchema'); // importa o schema
+const { uploadImage } = require('../models/imageModel'); // Import for image upload
 
 // Controller para buscar o username com base no id
 const buscarUsernameController = async (req, res) => {
@@ -72,15 +73,40 @@ async function seguirUsuario(req, res) {
 
 // Função para criar um novo usuário
 const createUser = async (req, res) => {
+  const requestBody = { ...req.body };
+
+  // Pre-processamento para 'esportes'
+  if (requestBody.esportes && typeof requestBody.esportes === 'string') {
+    // Tenta dividir por vírgula, ou trata como array de um elemento se não houver vírgula
+    requestBody.esportes = requestBody.esportes.split(',').map(sport => sport.trim()).filter(sport => sport);
+    if (requestBody.esportes.length === 0 && req.body.esportes.trim() !== '') { // Caso de string única sem vírgula
+        requestBody.esportes = [req.body.esportes.trim()];
+    } else if (requestBody.esportes.length === 0 && req.body.esportes.trim() === '') {
+        requestBody.esportes = []; // String vazia resulta em array vazio
+    }
+  } else if (requestBody.esportes === undefined) {
+    requestBody.esportes = []; // Se não enviado, Zod schema (se optional) tratará ou falhará se requerido
+  }
+
+  // Pre-processamento para 'redes_sociais'
+  if (requestBody.redes_sociais && typeof requestBody.redes_sociais === 'string') {
+    try {
+      requestBody.redes_sociais = JSON.parse(requestBody.redes_sociais);
+    } catch (e) {
+      return res.status(400).json({ errors: [{ path: ['redes_sociais'], message: 'Formato inválido para redes_sociais. Esperado um objeto JSON stringificado.' }] });
+    }
+  } else if (requestBody.redes_sociais === undefined) {
+    requestBody.redes_sociais = {}; // Se não enviado, Zod schema (se optional) tratará ou falhará se requerido
+  }
+
   // Validação dos dados com Zod
-  const parsed = userSchema.safeParse(req.body);
+  const parsed = userSchema.safeParse(requestBody);
 
   if (!parsed.success) {
     return res.status(400).json({ errors: parsed.error.errors });
   }
-
-  // Dados validados com sucesso
   const { nome, sobrenome, email, password, esportes, redes_sociais, username } = parsed.data;
+  const profileImageFile = req.file; // Arquivo da imagem de perfil (de multer)
 
   try {
     // Cria usuário no Firestore
@@ -90,6 +116,22 @@ const createUser = async (req, res) => {
     } catch (err) {
       console.error('Erro ao criar usuário no Firestore Controller:', err);
       return res.status(500).send('Erro ao criar usuário no Firestore Controller');
+    }
+
+    // Se uma imagem de perfil foi enviada, faz o upload
+    if (profileImageFile) {
+      try {
+        // Chama a função de upload do imageModel
+        // postId é null, type é 'profile', postDetails é {}
+        await uploadImage(userId, null, profileImageFile, 'profile', {});
+        console.log(`Imagem de perfil para o usuário ${userId} processada.`);
+      } catch (uploadError) {
+        console.error(`Erro ao fazer upload da imagem de perfil para ${userId}:`, uploadError.message);
+        // Decide se o erro de upload de imagem deve impedir a criação do usuário ou apenas logar.
+        // Por enquanto, apenas loga e continua, o usuário é criado sem imagem de perfil.
+        // Se for crítico, pode retornar um erro aqui:
+        // return res.status(500).send('Usuário criado, mas houve erro ao salvar a imagem de perfil.');
+      }
     }
 
     // Verifica se a chave JWT_SECRET está configurada

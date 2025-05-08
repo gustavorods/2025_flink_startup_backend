@@ -52,7 +52,7 @@ async function uploadImage(userId, postId, file, type, postDetails = {}) {
     // Salva o URL no Firestore
     if (type === 'profile') {
       const userDocRef = db.collection('users').doc(userId);
-      await userDocRef.update({ profileImageUrl: imageUrl });
+      await userDocRef.update({ image: imageUrl }); // Changed field name to 'image'
       console.log('URL da imagem de perfil armazenada no Firestore para o usuário:', userId);
     } else if (type === 'post') {
       // postId é o parâmetro da função, já validado para a chave S3.

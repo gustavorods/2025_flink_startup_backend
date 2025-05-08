@@ -3,16 +3,23 @@ const router = express.Router();
 const { userController } = require('../controllers');
 const authenticateToken = require('../middlewares/authenticateToken');
 
+const multer = require('multer');
+
+// Configuração do Multer para upload de imagens de perfil e posts.
+// Armazena os arquivos em memória para serem processados.
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 /**
  * @swagger
  * /api/criar-novo-user:
  *   post:
  *     summary: Cria um novo usuário e retorna um token JWT.
- *     description: Recebe os dados do usuário, cria o usuário no banco de dados e retorna um token JWT.
+ *     description: Recebe os dados do usuário, opcionalmente uma imagem de perfil, cria o usuário no banco de dados, faz upload da imagem para o S3 e retorna um token JWT.
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -48,6 +55,10 @@ const authenticateToken = require('../middlewares/authenticateToken');
  *                   x:
  *                     type: string
  *                     example: '@gustavo_x'
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Arquivo de imagem de perfil (opcional)."
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso e token JWT gerado.
@@ -64,7 +75,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
  *       500:
  *         description: Erro interno ao criar o usuário ou gerar o token JWT.
  */
-router.post('/criar-novo-user', userController.createUser);
+router.post('/criar-novo-user', upload.single('profileImage'), userController.createUser);
 
 // Rota para listar todos os usuários
 /**
