@@ -12,7 +12,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 
 // Configuração do CORS
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://frontendflinkdeploy-681ced702be4cc96a8c0a742.tcloud.site'],
+  origin: ['https://frontendflinkdeploy-681ced702be4cc96a8c0a742.tcloud.site', 'https://2025-flink-startup-frontend-5894yo0jt.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
